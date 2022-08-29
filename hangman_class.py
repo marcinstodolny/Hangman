@@ -8,11 +8,8 @@ class hangman:
     def __init__(self):
         self.letters_lowercase = string.ascii_lowercase
         self.read_from_file()
-        self.difficulty = 0
-        self.lives = 0
         self.word_to_guess = []
         self.used_letters = []
-        self.word = ""
         self.user_choice = ""
 
     def read_from_file(self):
@@ -22,7 +19,6 @@ class hangman:
     def main(self):
         self.get_menu_input_and_check()
         self.set_difficulty_level()
-        print(f"You have {self.lives} lives good luck :)")
         self.create_word_and_hide_it()
         self.game()
 
@@ -33,11 +29,11 @@ class hangman:
 
     def valid_menu_input(self):
         if self.user_choice.lower() in ["quit", "q"]:
-            print("Bye")
+            print("Good-bye")
             sys.exit()
         elif self.user_choice not in ["1", "2", "3"]:
             print("Invalid input value, try again")
-
+            
     def set_difficulty_level(self):
         match self.user_choice:
             case "1":
@@ -48,8 +44,9 @@ class hangman:
                 self.lives = 8
             case "3":
                 self.difficulty = self.word_list[174:242]
-                self.lives = 10
-
+                self.lives = 10    
+        print(f"You have {self.lives} lives good luck :)")
+            
     def create_word_and_hide_it(self):
         self.word = random.choice(self.difficulty)[:-1]
         self.create_word_with_underscores(list(self.word))
@@ -63,7 +60,6 @@ class hangman:
 
     def game(self):
         while self.word != "".join(self.word_to_guess):
-            print(self.word)
             self.show_state_of_hidden_word()
             self.get_user_input_or_quit()
             self.check_if_user_input_is_correct_or_repeat()
