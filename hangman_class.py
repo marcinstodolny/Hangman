@@ -7,89 +7,125 @@ from pathlib import Path
 class hangman:
     def __init__(self):
         self.letters_lowercase = string.ascii_lowercase
-        self.words = open(str(Path(__file__).parent.absolute()) + '\\' + "countries.txt").readlines()
-        self.word_easy = self.words[:113]
-        self.word_medium = self.words[114:173]
-        self.word_hard = self.words[174:242]
-        self.level = 0
+        self.read_from_file()
+        self.difficulty = 0
         self.lives = 0
         self.word_to_guess = []
         self.used_letters = []
         self.word = ""
         self.user_choice = ""
 
-    def game(self):
+    def read_from_file(self):
+        with open(str(Path(__file__).parent.absolute()) + '\\' + "countries.txt") as words:
+            self.word_list = words.readlines()
+
+    def main(self):
+        self.get_menu_input_and_check()
+        self.set_difficulty_level()
+        print(f"You have {self.lives} lives good luck :)")
+        self.create_word_and_hide_it()
+        self.game()
+
+    def get_menu_input_and_check(self):
         while self.user_choice not in ["1", "2", "3"]:
             self.user_choice = input("1. Easy\n2. Medium\n3. Hard\nq. Quit\nChose dificulty(1/2/3/quit): ")
-            if self.user_choice.lower() in ["quit", "q"]:
-                print("Bye")
-                sys.exit()
-            elif self.user_choice not in ["1", "2", "3"]:
-                print("Invalid input value, try again")
-        self.chose_level()
-        self.main()
-        
-    def chose_level(self):
+            self.valid_menu_input()
+
+    def valid_menu_input(self):
+        if self.user_choice.lower() in ["quit", "q"]:
+            print("Bye")
+            sys.exit()
+        elif self.user_choice not in ["1", "2", "3"]:
+            print("Invalid input value, try again")
+
+    def set_difficulty_level(self):
         match self.user_choice:
             case "1":
-                self.level = self.word_easy
+                self.difficulty = self.word_list[:113]
                 self.lives = 6
             case "2":
-                self.level = self.word_medium
-                self.lives = 7
+                self.difficulty = self.word_list[114:173]
+                self.lives = 8
             case "3":
-                self.level = self.word_hard
+                self.difficulty = self.word_list[174:242]
                 self.lives = 10
-        self.word = list(random.choice(self.level)[:-1])
-        print(f"You have {self.lives} lives good luck :)")
-        for item in self.word:
+
+    def create_word_and_hide_it(self):
+        self.word = random.choice(self.difficulty)[:-1]
+        self.create_word_with_underscores(list(self.word))
+
+    def create_word_with_underscores(self, word_list):
+        for item in word_list:
             if item == " ":
                 self.word_to_guess.append(" ")
             else:
                 self.word_to_guess.append("_")
-        self.word = "".join(self.word)
+
+    def game(self):
+        while self.word != "".join(self.word_to_guess):
+            print(self.word)
+            self.show_state_of_hidden_word()
+            self.get_user_input_or_quit()
+            self.check_if_user_input_is_correct_or_repeat()
+            self.check_if_letter_is_in_the_hidden_word()
+            self.check_if_the_game_is_lost()
+            self.show_lives_and_ussed_letters()
+        self.show_victory_message()
+
+    def show_state_of_hidden_word(self):
+        print(" ".join(self.word_to_guess))
+
+    def get_user_input_or_quit(self):
+        self.user_choice = input("Enter a letter or 'quit': ").lower()
+        if self.user_choice == "quit":
+            print("Good-bye")
+            sys.exit()
         
-    def main(self):
-        while self.word.lower() != "".join(self.word_to_guess).lower():
-            print(" ".join(self.word_to_guess))
-            self.user_choice = input("Enter a letter or 'quit': ").lower()
-            self.check_input()
-            self.used_letters.append(self.user_choice)
-            self.check_letter_in_word()
-            print(self.show_state_of_game())
-        print(f"{' '.join(self.word_to_guess)}\nGood job thats yours word :)")
-        sys.exit()
-        
-    def check_input(self):
+    def check_if_user_input_is_correct_or_repeat(self):
         while self.user_choice in self.used_letters or self.user_choice not in self.letters_lowercase or self.user_choice == "":
-            if self.user_choice == "quit":
-                print("Good-bye")
-                sys.exit()
-            print(self.show_state_of_game())
-            if self.user_choice in self.used_letters:
-                print(f"This letter is already on the list\n{' '.join(self.word_to_guess)}")
-            if self.user_choice not in self.letters_lowercase or self.user_choice == "":
-                print(f"You input wrong value\n{' '.join(self.word_to_guess)}")
-            self.user_choice = input("Enter a letter or 'quit': ").lower()
-                
-    def check_letter_in_word(self):
+            self.show_lives_and_ussed_letters()
+            self.letter_already_on_list_check()
+            self.entered_invalid_value_check()
+            self.get_user_input_or_quit()
+        self.used_letters.append(self.user_choice)
+        
+    def letter_already_on_list_check(self):
+        if self.user_choice in self.used_letters:
+            print("This letter was already used")
+            self.show_state_of_hidden_word()
+
+    def entered_invalid_value_check(self):
+        if self.user_choice not in self.letters_lowercase or self.user_choice == "":
+            print("You input wrong value")
+            self.show_state_of_hidden_word()
+
+    def check_if_letter_is_in_the_hidden_word(self):
         found_index = [item for item, found in enumerate(self.word) if self.user_choice == found.lower()]
+        self.convert_underscore_into_valid_letter(found_index)
+        if not found_index:
+            self.lives -= 1
+
+    def convert_underscore_into_valid_letter(self, found_index):
         for item in found_index:
-            if item == 0 or list(self.word)[item - 1] == " ":
-                self.word_to_guess[item] = self.user_choice.upper()
-            else:
-                self.word_to_guess[item] = self.user_choice
-        if not found_index: self.lives -= 1
+            self.word_to_guess[item] = self.word[item]
+            
+    def check_if_the_game_is_lost(self):
         if self.lives <= 0:
-            print(f"{self.Hangman_picture()}\nYou lost the game\nYour word was: {self.word}")
+            self.show_hangman_picture()
+            print(f"You lost the game\nYour word was: {self.word}")
             sys.exit()
 
-    def show_state_of_game(self):
-        return f"{self.Hangman_picture()}\nLives left: {self.lives}\nLetters already used: {self.used_letters}"
+    def show_victory_message(self):
+        self.show_state_of_hidden_word()
+        print("Good job thats yours word :)")
 
-    def Hangman_picture(self):
-        Hangman = [
-    '''    +---+
+    def show_lives_and_ussed_letters(self):
+        self.show_hangman_picture()
+        print(f"Lives left: {self.lives}\nLetters already used: {self.used_letters}")
+
+    def show_hangman_picture(self):
+        hangman = [
+            '''    +---+
     O   |
    /|\  |
    / \  |
@@ -130,6 +166,7 @@ class hangman:
        ===''', '''
        ===''', '', '', '', '', ''
         ]
-        return Hangman[self.lives]
+        print(hangman[self.lives])
+
 hang = hangman()
-print(hang.game())
+hang.main()
