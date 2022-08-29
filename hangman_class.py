@@ -25,9 +25,9 @@ class hangman:
     def get_menu_input_and_check(self):
         while self.user_choice not in ["1", "2", "3"]:
             self.user_choice = input("1. Easy\n2. Medium\n3. Hard\nq. Quit\nChose dificulty(1/2/3/quit): ")
-            self.valid_menu_input()
+            self.valid_menu_input_or_quit()
 
-    def valid_menu_input(self):
+    def valid_menu_input_or_quit(self):
         if self.user_choice.lower() in ["quit", "q"]:
             print("Good-bye")
             sys.exit()
@@ -45,7 +45,7 @@ class hangman:
             case "3":
                 self.difficulty = self.word_list[174:242]
                 self.lives = 10    
-        print(f"You have {self.lives} lives good luck :)")
+        self.show_lives_and_ussed_letters()
             
     def create_word_and_hide_it(self):
         self.word = random.choice(self.difficulty)[:-1]
@@ -113,7 +113,7 @@ class hangman:
 
     def show_victory_message(self):
         self.show_state_of_hidden_word()
-        print("Good job thats yours word :)")
+        print("Good job thats your's word :)")
 
     def show_lives_and_ussed_letters(self):
         self.show_hangman_picture()
