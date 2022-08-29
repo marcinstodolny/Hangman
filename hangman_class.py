@@ -3,6 +3,7 @@ import string
 import sys
 from pathlib import Path
 
+
 class hangman:
     def __init__(self):
         self.letters_lowercase = string.ascii_lowercase
@@ -20,7 +21,7 @@ class hangman:
     def game(self):
         while self.user_choice not in ["1", "2", "3"]:
             self.user_choice = input("1. Easy\n2. Medium\n3. Hard\nq. Quit\nChose dificulty(1/2/3/quit): ")
-            if self.user_choice.lower() == "quit":
+            if self.user_choice.lower() in ["quit", "q"]:
                 print("Bye")
                 sys.exit()
             elif self.user_choice not in ["1", "2", "3"]:
@@ -40,6 +41,7 @@ class hangman:
                 self.level = self.word_hard
                 self.lives = 10
         self.word = list(random.choice(self.level)[:-1])
+        print(f"You have {self.lives} lives good luck :)")
         for item in self.word:
             if item == " ":
                 self.word_to_guess.append(" ")
@@ -48,17 +50,16 @@ class hangman:
         self.word = "".join(self.word)
         
     def main(self):
-        while True:
+        while self.word.lower() != "".join(self.word_to_guess).lower():
             print(" ".join(self.word_to_guess))
             self.user_choice = input("Enter a letter or 'quit': ").lower()
             self.check_input()
             self.used_letters.append(self.user_choice)
-            self.check_letter()
-            if self.word.lower() == "".join(self.word_to_guess).lower():
-                print(f"{' '.join(self.word_to_guess)}\nGood job thats yours word :)")
-                sys.exit()
+            self.check_letter_in_word()
             print(self.show_state_of_game())
-
+        print(f"{' '.join(self.word_to_guess)}\nGood job thats yours word :)")
+        sys.exit()
+        
     def check_input(self):
         while self.user_choice in self.used_letters or self.user_choice not in self.letters_lowercase or self.user_choice == "":
             if self.user_choice == "quit":
@@ -71,7 +72,7 @@ class hangman:
                 print(f"You input wrong value\n{' '.join(self.word_to_guess)}")
             self.user_choice = input("Enter a letter or 'quit': ").lower()
                 
-    def check_letter(self):
+    def check_letter_in_word(self):
         found_index = [item for item, found in enumerate(self.word) if self.user_choice == found.lower()]
         for item in found_index:
             if item == 0 or list(self.word)[item - 1] == " ":
@@ -84,7 +85,7 @@ class hangman:
             sys.exit()
 
     def show_state_of_game(self):
-        return f"{self.Hangman_picture()}\nLives left: {self.lives}\nLetters used: {self.used_letters}"
+        return f"{self.Hangman_picture()}\nLives left: {self.lives}\nLetters already used: {self.used_letters}"
 
     def Hangman_picture(self):
         Hangman = [
