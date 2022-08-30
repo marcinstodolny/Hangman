@@ -7,12 +7,12 @@ from pathlib import Path
 class hangman:
     def __init__(self):
         self.letters_lowercase = string.ascii_lowercase
-        self.read_from_file()
+        self.read_words_from_file()
         self.word_to_guess = []
         self.used_letters = []
         self.user_choice = ""
 
-    def read_from_file(self):
+    def read_words_from_file(self):
         with open(str(Path(__file__).parent.absolute()) + '\\' + "countries.txt") as words:
             self.word_list = words.readlines()
 
@@ -24,11 +24,11 @@ class hangman:
 
     def get_menu_input_and_check(self):
         while self.user_choice not in ["1", "2", "3"]:
-            self.user_choice = input("1. Easy\n2. Medium\n3. Hard\nq. Quit\nChose dificulty(1/2/3/quit): ")
+            self.user_choice = input("1. Easy\n2. Medium\n3. Hard\nq. Quit\nChose dificulty(1/2/3/quit): ").lower()
             self.valid_menu_input_or_quit()
 
     def valid_menu_input_or_quit(self):
-        if self.user_choice.lower() in ["quit", "q"]:
+        if self.user_choice in ["quit", "q"]:
             print("Good-bye")
             sys.exit()
         elif self.user_choice not in ["1", "2", "3"]:
@@ -163,6 +163,7 @@ class hangman:
        ===''', '', '', '', '', ''
         ]
         print(hangman[self.lives])
+
 
 hang = hangman()
 hang.main()
