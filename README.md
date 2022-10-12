@@ -1,2 +1,2 @@
 # Hangman 
-Classic Hangman game where you have countries to guess
+Classic Hangman game where you have to guess country
